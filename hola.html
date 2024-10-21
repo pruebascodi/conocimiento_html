@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigrama con Flecha</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.46/go.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+        #myDiagramDiv {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div id="myDiagramDiv"></div>
+
+    <script>
+        const $ = go.GraphObject.make;
+        
+        // Inicializar el diagrama
+        const myDiagram = $(go.Diagram, "myDiagramDiv", {
+            layout: $(go.TreeLayout, { angle: 90, layerSpacing: 35, nodeSpacing: 20 })
+        });
+
+        // Definir el template de los nodos (cuadros)
+        myDiagram.nodeTemplate = 
+        $(go.Node, "Vertical",
+          $(go.Panel, "Auto",
+            $(go.Shape, "RoundedRectangle", 
+              { fill: "#89DC00", stroke: "#210D65", strokeWidth: 2, width: 180, height: 100 }), // Tamaño del cuadro
+            $(go.Panel, "Vertical",
+              $(go.TextBlock, 
+                { font: "bold 12px sans-serif", margin: 5, stroke: "#210D65", textAlign: "center", wrap: go.TextBlock.WrapDesiredSize, width: 160 }, 
+                new go.Binding("text", "name")),  // Nombre
+              $(go.TextBlock, 
+                { font: "10px sans-serif", margin: 5, stroke: "#210D65", textAlign: "center", wrap: go.TextBlock.WrapDesiredSize, width: 160 }, 
+                new go.Binding("text", "title"))  // Título
+            )
+          )
+        );
+
+        // Definir la plantilla de "Revisora Fiscal" (nodo especial sin cuadro)
+        myDiagram.nodeTemplateMap.add("special", 
+          $(go.Node, "Vertical", 
+            $(go.TextBlock, 
+              { font: "bold 12px sans-serif", stroke: "#210D65", textAlign: "center", margin: 5 }, 
+              new go.Binding("text", "name"))  // Texto sin cuadro
+          )
+        );
+        myDiagram.linkTemplate =
+        $(go.Link,
+          { routing: go.Link.Orthogonal, corner: 5 },
+          $(go.Shape, { strokeWidth: 2, stroke: "#2e4d82" }),  // Este es el palo de la flecha
+          $(go.Shape, { toArrow: "Standard", stroke: null, fill: "#2e4d82" })  // Esta es la punta de la flecha
+        );
+
+         // Plantilla de flecha
+         myDiagram.nodeTemplateMap.add("arrow", 
+         $(go.Node, "Vertical",
+           $(go.Panel, "Auto",
+             $(go.Shape, "Triangle", { fill: "black", stroke: "black", strokeWidth: 2, width: 30, height: 30 ,angle: 90 })  // Flecha
+           )
+         )
+       );
+
+        // Definir el estilo de los enlaces
+        myDiagram.linkTemplate = 
+        $(go.Link, 
+          { routing: go.Link.Orthogonal, corner: 5 },
+          $(go.Shape, { strokeWidth: 2, stroke: "#2e4d82" })  // Línea con color y grosor
+        );
+
+        // Definir el modelo de datos del organigrama
+        myDiagram.model = new go.TreeModel([
+          { key: 0, name: "Junta Directiva", title: "" },
+          { key: 100, parent: 0, name: "Steven Salazar", title: "Gerente General" },
+          { key: 1, parent: 100, name: "Dirección Departamento Comercial", title: "" },
+          { key: 2, parent: 1, name: "Analista Especializado", title: "en Compras" },
+          { key: 200, name: "Revisora Fiscal", title: "", category: "special" }, // Nodo especial
+          { key: 300, name: "Flecha", category: "arrow" }  // Nodo con flecha
+        ]);
+
+        // Posicionar la flecha manualmente (puedes ajustar las coordenadas)
+        myDiagram.model.setDataProperty(myDiagram.model.findNodeDataForKey(300), "position", new go.Point(200, 50));
+    </script>
+</body>
+</html>

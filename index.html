@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organigrama</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.46/go.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+        #myDiagramDiv {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="myDiagramDiv"></div>
+    <button id="downloadPdf">Descargar PDF</button>
+  
+    <script>
+        const $ = go.GraphObject.make;
+        const myDiagram = $(go.Diagram, "myDiagramDiv", {
+            layout: $(go.TreeLayout, { angle: 90, layerSpacing: 35, nodeSpacing: 20 })
+        });
+
+         
+           // Definir un tamaño fijo para todos los nodos (cuadros)
+myDiagram.nodeTemplate =
+$(go.Node, "Auto",
+  $(go.Shape, "RoundedRectangle", { fill: "#89DC00", stroke: "#210D65", strokeWidth: 2, width: 300, height: 250 }), // Fijamos el tamaño del cuadro
+  $(go.Panel, "Vertical",
+    // Nombre en negrita
+    $(go.TextBlock, { font: "  48px sans-serif", margin: 10, stroke: "black", textAlign: "center", wrap: go.TextBlock.WrapDesiredSize, width: 280 }, new go.Binding("text", "name")),
+    // Título
+    $(go.TextBlock, { font: " bold 30px sans-serif", margin: 5, stroke: "black", textAlign: "center", wrap: go.TextBlock.WrapDesiredSize, width: 280 }, new go.Binding("text", "title"))
+  )
+);
+
+
+          // Plantilla de flecha
+          myDiagram.nodeTemplateMap.add("arrow", 
+          $(go.Node, "Vertical",
+            $(go.Panel, "Auto",
+              $(go.Shape, "Triangle", { fill: "black", stroke: "black", strokeWidth: 2, width: 30, height: 30 ,angle: 90 })  // Flecha
+            )
+          )
+        );
+        // Definir la plantilla de "Revisora Fiscal" (nodo especial sin cuadro)
+        myDiagram.nodeTemplateMap.add("special", 
+          $(go.Node, "Vertical", 
+            $(go.TextBlock, 
+              { font: "bold 47px sans-serif", stroke: "black", textAlign: "black", margin: 5 }, 
+              new go.Binding("text", "name"))  // Texto sin cuadro
+          )
+        );
+
+        // Definir el estilo de los enlaces
+        myDiagram.linkTemplate =
+        $(go.Link,
+          { routing: go.Link.Orthogonal, corner: 5 },
+          $(go.Shape, { strokeWidth: 2, stroke: "#2e4d82" })  // Líneas con color y grosor
+        );
+
+      
+        myDiagram.model = new go.TreeModel([
+          { key: 0, name: "Junta Directiva", title: "" },
+          { key: 250, name: "Revisora Fiscal", title: "", category: "special" }, // Nodo especial
+          { key: 1, parent: 0, name: "Estiven Salazar", title: "Gerente General" },
+          { key: 2, parent: 1, name: "Estiven Salazar", title: "Dirección Departamento Comercial" },
+          { key: 30, parent: 2, name: "Analista Especializado en Compras ", title: "" }, 
+          { key: 30, parent: 2, name: "Analista Especializado Comercial", title: "" }, 
+          { key: 30, parent: 2, name: " Analista Community Manager", title: "" }, 
+          { key: 5, parent: 1, name: "Ana Herrera", title: "Dirección Administrativa y Financiera" },
+          { key: 40, parent: 5, name: "Líder Contabilidad", title: "" }, 
+          { key: 43, parent: 40, name: "Analista Especializado en Cartera", title: "" }, 
+          { key: 45, parent: 43, name: "Auxiliar en Cartera", title: "" }, 
+          { key: 44, parent: 40, name: "Analista Especializado en Tesorería", title: "" },
+          { key: 46, parent: 44, name: "Auxiliar en Tesorería", title: "" },  
+          { key: 41, parent: 5, name: "Analista Contabilidad", title: "" }, 
+          { key: 47, parent: 41, name: "Auxiliar Causación", title: "" }, 
+          { key: 42, parent: 5, name: "Auxiliar Nómina ", title: "" }, 
+          { key: 3, parent: 1, name: "Ramirez Hincapie", title: "Dirección  Operaciones" },
+          { key: 60, parent: 3, name: "Analista Especializado Senior Procesos", title: "" },
+          { key: 67, parent: 60, name: "Analista Especializado Operaciones", title: "" },
+          { key: 68, parent: 67, name: "Líder Administrativo y Punto Venta", title: "" },
+          { key: 80, parent: 68, name: "Operador logístico", title: "" },
+          { key: 80, parent: 68, name: "Monitor de Servicios", title: "" },
+          { key: 80, parent: 68, name: "Auxiliar Servicios Generales", title: "" },
+          { key: 80, parent: 68, name: "Domiciliario", title: "" },
+          { key: 69, parent: 68, name: "Supervisor Carnes", title: "" },
+          { key: 71, parent: 69, name: "Auxiliar Carnes", title: "" },
+          { key: 70, parent: 68, name: "Supervisor Fruver", title: "" },
+          { key: 72, parent: 70, name: "Auxiliar Fruver", title: "" },
+          { key: 61, parent: 3, name: "Coordinador Sistemas", title: "" }, 
+          { key: 90, parent: 61, name: "Auxiliar Sistemas", title: "" }, 
+          { key: 90, parent: 61, name: "Auxiliar Desarrollador Software", title: "" }, 
+          { key: 62, parent: 3, name: "Coordinador Logístico", title: "" },
+          { key: 50, parent: 62, name: "Supervisor Bodega", title: "" },
+          { key: 50, parent: 62, name: "Auxiliar Recibo", title: "" },
+          { key: 50, parent: 62, name: "Conductor", title: "" },
+          { key: 50, parent: 62, name: "Auxiliar Traslados", title: "" },
+          { key: 63, parent: 3, name: "Analista Especializado Inventario", title: "" },
+          { key: 100, parent: 63, name: "Auxiliar Inventario", title: "" },
+          { key: 64, parent: 3, name: "Analista Especializado Almacén", title: "" },
+          { key: 200, parent: 64, name: "Auxiliar Almacén", title: "" },
+          { key: 65, parent: 3, name: "Analista Especializado Fruver", title: "" },
+          { key: 300, parent: 65, name: "Auxiliar Cedi de Ingresos", title: "" },
+          { key: 300, parent: 65, name: "Auxiliar Cedi de Fruver", title: "" },
+          { key: 66, parent: 3, name: "Analista Compras Fruver", title: "  " },
+          { key: 4, parent: 1, name: "Victor Cardenas", title: "Dirección Gestión Humana" },
+          { key: 400, parent: 4, name: "Líder Desarrollo Humano", title: "" },
+          { key: 401, parent: 400, name: "Analista Desarrollo Humano", title: "" },
+          { key: 402, parent: 401, name: "Auxiliar Gestión Humana", title: "" },
+          { key: 402, parent: 401, name: "Auxiliar Seguridad y Salud en el Trabajo", title: "" },
+          { key: 300, name: "Flecha", category: "arrow" }  // Nodo con flecha
+        ]);
+
+        document.getElementById("downloadPdf").onclick = function() {
+          const { jsPDF } = window.jspdf;
+      
+          const pdf = new jsPDF('landscape'); // Crea un nuevo PDF en modo horizontal
+          const svgData = myDiagram.makeSvg({ scale: 1 }); // Crea un SVG del diagrama
+          const svgString = new XMLSerializer().serializeToString(svgData); // Serializa el SVG a string
+      
+          // Crear un canvas y dibujar el SVG en él
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Crear una imagen a partir del SVG
+          const img = new Image();
+          img.src = 'data:image/svg+xml;charset=utf-8;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+          
+          img.onload = function() {
+              // Establecer el tamaño del canvas
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+      
+              // Convertir el canvas a PNG
+              const imgData = canvas.toDataURL('image/png');
+              
+              const pdfWidth = pdf.internal.pageSize.width - 20; // Margen de 10 en cada lado
+              const pdfHeight = (pdfWidth * img.height) / img.width; // Mantener proporciones
+              
+              pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
+              pdf.save("organigrama.pdf"); // Descarga el PDF
+          };
+      
+          img.onerror = function() {
+              console.error("Error al cargar la imagen SVG.");
+          };
+      };
+
+           // Añadir el texto de la Revisora Fiscal manualmente
+        
+        
+       
+      
+    </script>
+</body>
+</html>
